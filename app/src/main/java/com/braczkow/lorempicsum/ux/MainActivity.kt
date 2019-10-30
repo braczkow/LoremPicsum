@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.lib.PicsumApi
+import com.braczkow.lorempicsum.lib.util.DoOnStop
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
@@ -43,9 +44,8 @@ class MainActivity : AppCompatActivity() {
         main_recycler.adapter = adapter
         main_recycler.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
 
-
         main_test_btn.setOnClickListener {
-            picsumApi.getPicsList()
+            val disposable = picsumApi.getPicsList()
                 .subscribeOn(sf.io())
                 .observeOn(sf.main())
                 .subscribe({
@@ -54,6 +54,10 @@ class MainActivity : AppCompatActivity() {
                 }, {
                     Timber.e("Failed to getPiclist: $it")
                 })
+
+            DoOnStop(lifecycle) {
+                disposable.dispose()
+            }
         }
     }
 
