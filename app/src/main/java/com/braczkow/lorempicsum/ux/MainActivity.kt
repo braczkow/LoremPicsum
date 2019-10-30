@@ -1,7 +1,8 @@
-package com.braczkow.lorempicsum
+package com.braczkow.lorempicsum.ux
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.braczkow.lorempicsum.R
 
 class MainActivity : AppCompatActivity() {
 
