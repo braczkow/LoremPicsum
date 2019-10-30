@@ -1,6 +1,7 @@
 package com.braczkow.lorempicsum.app.di
 
 import com.braczkow.lorempicsum.lib.di.PicsumModule
+import com.braczkow.lorempicsum.lib.di.UtilsModule
 import com.braczkow.lorempicsum.ux.MainActivity
 import dagger.Component
 import javax.inject.Singleton
@@ -9,7 +10,8 @@ import javax.inject.Singleton
 @Component(
     modules = [
         AppModule::class,
-        PicsumModule::class
+        PicsumModule::class,
+        UtilsModule::class
     ]
 )
 interface AppComponent {
