@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ux.details.DetailsActivity"></activity>
-        <activity android:name=".ux.MainActivity">
+        <activity android:name=".ux.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

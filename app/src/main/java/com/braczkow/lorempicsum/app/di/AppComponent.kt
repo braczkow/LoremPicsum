@@ -2,7 +2,7 @@ package com.braczkow.lorempicsum.app.di
 
 import com.braczkow.lorempicsum.lib.di.PicsumModule
 import com.braczkow.lorempicsum.lib.di.UtilsModule
-import com.braczkow.lorempicsum.ux.MainActivity
+import com.braczkow.lorempicsum.ux.main.MainActivity
 import dagger.Component
 import javax.inject.Singleton
 
