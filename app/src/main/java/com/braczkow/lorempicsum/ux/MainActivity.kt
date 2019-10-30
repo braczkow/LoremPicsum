@@ -5,6 +5,8 @@ import android.os.Bundle
 import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.lib.PicsumApi
+import com.braczkow.lorempicsum.lib.util.SchedulersFactory
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -13,6 +15,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var picsumApi: PicsumApi
+
+    @Inject
+    lateinit var sf: SchedulersFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         App
@@ -24,8 +29,10 @@ class MainActivity : AppCompatActivity() {
 
         main_test_btn.setOnClickListener {
             picsumApi.getPicsList()
+                .subscribeOn(sf.io())
+                .observeOn(sf.main())
                 .subscribe({
-                    Timber.d("Success geting picslist! size: ${it.entries.size}")
+                    Timber.d("Success geting picslist! size: ${it.size}")
                 }, {
                     Timber.e("Failed to getPiclist: $it")
                 })
