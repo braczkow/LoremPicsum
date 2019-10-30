@@ -2,6 +2,10 @@ package com.braczkow.lorempicsum.ux
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.lib.PicsumApi
@@ -27,6 +31,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val adapter = ImagesAdapter()
+
+        main_recycler.adapter = adapter
+        main_recycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+
         main_test_btn.setOnClickListener {
             picsumApi.getPicsList()
                 .subscribeOn(sf.io())
@@ -36,6 +46,24 @@ class MainActivity : AppCompatActivity() {
                 }, {
                     Timber.e("Failed to getPiclist: $it")
                 })
+        }
+    }
+
+    class ImagesAdapter: RecyclerView.Adapter<ImagesAdapter.ImageVH>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageVH {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun getItemCount(): Int {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun onBindViewHolder(holder: ImageVH, position: Int) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        class ImageVH(itemView: View): RecyclerView.ViewHolder(itemView) {
+
         }
     }
 }
