@@ -14,6 +14,7 @@ import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.lib.PicsumApi
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
+import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -77,6 +78,10 @@ class MainActivity : AppCompatActivity() {
             Glide.with(context)
                 .load(item.download_url)
                 .into(holder.itemView.image_image)
+
+            holder.itemView.image_root.setOnClickListener {
+                context.startActivity(DetailsActivity.makeIntent(context, item.download_url, item.author))
+            }
         }
 
         class ImageVH(itemView: View): RecyclerView.ViewHolder(itemView) {
