@@ -2,12 +2,14 @@ package com.braczkow.lorempicsum.lib.di
 
 import com.braczkow.lorempicsum.BuildConfig
 import com.braczkow.lorempicsum.lib.PicsumApi
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 
 @Module
 class PicsumModule {
@@ -25,6 +27,7 @@ class PicsumModule {
         return Retrofit.Builder()
             .baseUrl("https://picsum.photos")
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(Gson()))
             .client(httpClient.build())
             .build()
             .create(PicsumApi::class.java)
