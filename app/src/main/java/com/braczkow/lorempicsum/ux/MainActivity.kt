@@ -2,6 +2,7 @@ package com.braczkow.lorempicsum.ux
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +13,7 @@ import com.braczkow.lorempicsum.lib.PicsumApi
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.image_item.view.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -43,6 +45,7 @@ class MainActivity : AppCompatActivity() {
                 .observeOn(sf.main())
                 .subscribe({
                     Timber.d("Success geting picslist! size: ${it.size}")
+                    adapter.addItems(it)
                 }, {
                     Timber.e("Failed to getPiclist: $it")
                 })
@@ -50,16 +53,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     class ImagesAdapter: RecyclerView.Adapter<ImagesAdapter.ImageVH>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageVH {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        private val items = mutableListOf<PicsumApi.ListEntry>()
+
+        fun addItems(items: List<PicsumApi.ListEntry>) {
+            this.items.addAll(items)
+            notifyDataSetChanged()
         }
 
-        override fun getItemCount(): Int {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageVH {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.image_item, parent, false)
+            return ImageVH(view)
         }
+
+        override fun getItemCount() = items.size
 
         override fun onBindViewHolder(holder: ImageVH, position: Int) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            val item = items[position]
+
+            holder.itemView.image_name.setText(item.url)
         }
 
         class ImageVH(itemView: View): RecyclerView.ViewHolder(itemView) {
