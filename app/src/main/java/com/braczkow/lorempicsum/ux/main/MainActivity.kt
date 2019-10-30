@@ -16,6 +16,7 @@ import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
@@ -95,6 +96,7 @@ class MainActivity : AppCompatActivity() {
 
             Glide.with(context)
                 .load(item.download_url)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.itemView.image_image)
 
             holder.itemView.image_root.setOnClickListener {

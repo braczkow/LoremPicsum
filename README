@@ -1,4 +1,25 @@
 LoremPicsum, v0.0.1
 
 Decision, comments, TODOs:
-- I choose minSdk 23; I think it's a reasonable choice for EU-targeted Apps..giapp
+#1 I choose minSdk 23; I think it's a reasonable choice for EU-targeted Apps.
+
+#2 Due to tight schedule I stick to the architecture I use everyday:
+- RxJava2 (rather than LiveData/coroutines)
+- dagger2
+- MVP (rather than MVVM)
+- multiple Activities (rather than Navigation AAC)
+
+#3 I use a SharedPref-based Repository to store the list of fetched images (json)
+This way we can live without AAC ViewModel quite fine, at least for this requirements.
+
+#4 I have provided simple UTs for MainPresenter
+
+#5 (in the last moment) I have refacotred towards a full-injectable Presenter. I deliberately did not
+use any AndroidInjection, as I find it to be too complex (I use it in my current project, would not go this way again).
+Some improvement would be to use @IntoMap to avoid a little of the boilerplate. However, I find the solution I have provided
+to be the most readable.
+Big thing is that Presenter receives both App-scoped and Activity-scoped objects in the constructor
+
+#6 I'm no designer, as you might have seen
+
+#7 My tests show that my Repo is not really working. Ok, fixed!

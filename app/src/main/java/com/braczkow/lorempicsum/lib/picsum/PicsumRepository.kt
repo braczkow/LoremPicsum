@@ -25,12 +25,12 @@ class PicsumRepositoryImpl @Inject constructor(private val context: Context) : P
 
     private val piclistPublisher = BehaviorSubject.createDefault(loadPicList())
 
-    private val LIST_PREFS_NAME = "LIST_PREFS_NAME"
-
     override fun savePiclist(list: List<PicsumApi.ListEntry>) {
+        val storage = PicsListStorage(list)
+
         prefs
             .edit()
-            .putString(LIST_PREFS_NAME, gson.toJson(PicsListStorage(list)))
+            .putString(PicsListStorage::class.java.simpleName, gson.toJson(storage))
             .apply()
 
         piclistPublisher.onNext(list)
@@ -39,10 +39,11 @@ class PicsumRepositoryImpl @Inject constructor(private val context: Context) : P
     override fun getPiclist(): Observable<List<PicsumApi.ListEntry>> = piclistPublisher
 
     private fun loadPicList(): List<PicsumApi.ListEntry> {
-        return prefs.getString(LIST_PREFS_NAME, null)?.let {
-            val storage = gson.fromJson(it, PicsListStorage::class.java)
-            storage.list
-        } ?: listOf<PicsumApi.ListEntry>()
+        if (prefs.contains(PicsListStorage::class.java.simpleName)) {
+            return gson.fromJson(prefs.getString(PicsListStorage::class.java.simpleName, ""), PicsListStorage::class.java).list
+        } else {
+            return listOf()
+        }
     }
 
 }
