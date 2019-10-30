@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.braczkow.lorempicsum.R
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         val adapter = ImagesAdapter()
 
         main_recycler.adapter = adapter
-        main_recycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        main_recycler.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
 
 
         main_test_btn.setOnClickListener {
