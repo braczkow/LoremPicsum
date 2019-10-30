@@ -11,9 +11,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
-import com.braczkow.lorempicsum.lib.picsum.PicsumApi
-import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
-import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -24,6 +21,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.image_item.view.*
 import javax.inject.Inject
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -54,6 +53,26 @@ class MainActivity : AppCompatActivity() {
     class MainView(private val rootView: View) {
         fun refreshItems() {
             rootView.main_recycler.adapter?.notifyDataSetChanged()
+        }
+
+        fun onEndOfScroll(block: () -> Unit) {
+            rootView.main_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+
+                    if (!recyclerView.canScrollVertically(1)) {
+                        block()
+                    }
+                }
+            })
+        }
+
+        fun showLoading() {
+            rootView.main_progress.visibility = View.VISIBLE
+        }
+
+        fun hideLoading() {
+            rootView.main_progress.visibility = View.GONE
         }
     }
 

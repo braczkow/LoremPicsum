@@ -20,6 +20,11 @@ class MainPresenter @Inject constructor(
     val items = mutableListOf<PicsumApi.ListEntry>()
 
     init {
+        view.onEndOfScroll {
+            Timber.d("End of scroll detected!")
+            loadNewImages()
+        }
+
         DoOnStart(lifecycle) {
             val disposables = CompositeDisposable()
 
@@ -34,8 +39,10 @@ class MainPresenter @Inject constructor(
                     items.addAll(it)
 
                     if (items.isEmpty()) {
+                        view.showLoading()
                         loadNewImages()
                     } else {
+                        view.hideLoading()
                         view.refreshItems()
                     }
                 })
@@ -49,9 +56,11 @@ class MainPresenter @Inject constructor(
             .observeOn(sf.main())
             .subscribe({
                 Timber.d("Success geting picslist! size: ${it.size}")
+                view.hideLoading()
                 picsumRepository.savePiclist(it)
             }, {
                 Timber.e("Failed to getPiclist: $it")
+                view.hideLoading()
             })
 
         DoOnStop(lifecycle) {
