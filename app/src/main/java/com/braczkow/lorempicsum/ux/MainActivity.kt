@@ -1,7 +1,9 @@
 package com.braczkow.lorempicsum.ux
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +14,7 @@ import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.lib.PicsumApi
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
+import com.bumptech.glide.Glide
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.image_item.view.*
@@ -34,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val adapter = ImagesAdapter()
+        val adapter = ImagesAdapter(this)
 
         main_recycler.adapter = adapter
         main_recycler.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
@@ -53,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    class ImagesAdapter: RecyclerView.Adapter<ImagesAdapter.ImageVH>() {
+    class ImagesAdapter(private val context: Context): RecyclerView.Adapter<ImagesAdapter.ImageVH>() {
         private val items = mutableListOf<PicsumApi.ListEntry>()
 
         fun addItems(items: List<PicsumApi.ListEntry>) {
@@ -71,7 +74,9 @@ class MainActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ImageVH, position: Int) {
             val item = items[position]
 
-            holder.itemView.image_name.setText(item.url)
+            Glide.with(context)
+                .load(item.download_url)
+                .into(holder.itemView.image_image)
         }
 
         class ImageVH(itemView: View): RecyclerView.ViewHolder(itemView) {
