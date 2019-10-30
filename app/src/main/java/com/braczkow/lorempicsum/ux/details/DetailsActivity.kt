@@ -15,16 +15,30 @@ class DetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
 
+        var url: String? = null
+
         intent.extras?.let { bundle ->
             bundle.getString(URL_ARG_EXTRA)?.let {
                 Glide.with(this)
                     .load(it)
                     .into(details_image)
+
+                url = it
             }
 
             bundle.getString(AUTHOR_ARG_EXTRA)?.let {
                 details_author.setText(it)
             }
+        }
+
+        details_share.setOnClickListener {
+            val sendIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, url)
+                type = "image/*"
+            }
+
+            startActivity(sendIntent)
         }
     }
 
