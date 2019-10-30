@@ -8,8 +8,9 @@ import com.braczkow.lorempicsum.lib.util.DoOnStop
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
+import javax.inject.Inject
 
-class MainPresenter(
+class MainPresenter @Inject constructor(
     private val picsumApi: PicsumApi,
     private val picsumRepository: PicsumRepository,
     private val sf: SchedulersFactory,

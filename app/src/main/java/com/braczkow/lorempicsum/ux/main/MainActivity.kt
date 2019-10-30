@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.braczkow.lorempicsum.R
@@ -15,6 +16,9 @@ import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
+import dagger.Module
+import dagger.Provides
+import dagger.Subcomponent
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.image_item.view.*
@@ -22,38 +26,50 @@ import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
+    @Subcomponent(modules = [DaggerModule::class])
+    interface DaggerComponent {
+        @Subcomponent.Builder
+        interface Builder {
+            fun build(): DaggerComponent
+            fun plus(module: DaggerModule): Builder
+        }
+
+        fun inject(mainActivity: MainActivity)
+    }
+
+    @Module
+    class DaggerModule(
+        val lifecycle: Lifecycle,
+        val mainView: MainView
+    ) {
+        @Provides
+        fun provideLifecycle() = lifecycle
+
+        @Provides
+        fun provideView() = mainView
+    }
+
+
     class MainView(private val rootView: View) {
         fun refreshItems() {
             rootView.main_recycler.adapter?.notifyDataSetChanged()
         }
     }
 
+    @Inject
     lateinit var mainPresenter: MainPresenter
 
-    @Inject
-    lateinit var picsumApi: PicsumApi
-
-    @Inject
-    lateinit var picsumRepository: PicsumRepository
-
-    @Inject
-    lateinit var sf: SchedulersFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        App
-            .dagger()
-            .inject(this)
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mainPresenter = MainPresenter(
-            picsumApi,
-            picsumRepository,
-            sf,
-            MainView(main_root),
-            lifecycle
-        )
+        App
+            .dagger()
+            .mainActivity()
+            .plus(DaggerModule(lifecycle, MainView(main_root)))
+            .build()
+            .inject(this)
 
         val adapter = ImagesAdapter(this, mainPresenter)
 

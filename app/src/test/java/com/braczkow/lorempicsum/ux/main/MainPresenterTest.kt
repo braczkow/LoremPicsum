@@ -12,7 +12,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.reactivex.Observable
 import io.reactivex.Single
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 

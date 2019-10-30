@@ -21,5 +21,5 @@ interface AppComponent {
         fun appModule(appModule: AppModule): Builder
     }
 
-    fun inject(activity: MainActivity)
+    fun mainActivity(): MainActivity.DaggerComponent.Builder
 }
