@@ -4,11 +4,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 
-class DoOnStop (lifecycle: Lifecycle, block: () -> Unit) {
+class DoOnStart (lifecycle: Lifecycle, block: () -> Unit) {
     init {
         lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun onStart() {
                 block()
             }
         })

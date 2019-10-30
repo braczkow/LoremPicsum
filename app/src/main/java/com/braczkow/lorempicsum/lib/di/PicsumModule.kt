@@ -1,7 +1,9 @@
 package com.braczkow.lorempicsum.lib.di
 
 import com.braczkow.lorempicsum.BuildConfig
-import com.braczkow.lorempicsum.lib.PicsumApi
+import com.braczkow.lorempicsum.lib.picsum.PicsumApi
+import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
+import com.braczkow.lorempicsum.lib.picsum.PicsumRepositoryImpl
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -32,4 +34,7 @@ class PicsumModule {
             .build()
             .create(PicsumApi::class.java)
     }
+
+    @Provides
+    fun providePicsumRepository(impl: PicsumRepositoryImpl): PicsumRepository = impl
 }
