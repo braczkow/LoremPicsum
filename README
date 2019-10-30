@@ -23,3 +23,12 @@ Big thing is that Presenter receives both App-scoped and Activity-scoped objects
 #6 I'm no designer, as you might have seen
 
 #7 My tests show that my Repo is not really working. Ok, fixed!
+
+After-4h-improvements (you may ignore that, time was over. But only 15 minutes ;) :
+#1 I have added progress indicator, before the initial fetch of pics-list. Totally forgot about that in the first place
+#2 I have added initial code for the end-of-scroll handling. It does stupid thing: loads the same list anew.
+But it's very close to a fully-working solution
+
+Sum-up:
+- I probably prefer to do some initial arch/package structure rather than implement the feature ASAP.
+- I can easily test stuff that shall be tested
