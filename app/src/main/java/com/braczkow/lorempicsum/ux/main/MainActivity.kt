@@ -7,24 +7,54 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
+import com.braczkow.lorempicsum.app.di.ViewModelKey
+import com.braczkow.lorempicsum.lib.picsum.PicsumApi
+import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
+import dagger.multibindings.IntoMap
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.image_item.view.*
+import timber.log.Timber
 import javax.inject.Inject
 
 
 
 class MainActivity : AppCompatActivity() {
+
+    class MainActivityData {
+        init {
+            Timber.d("MainActivityData ctor")
+        }
+    }
+
+    @Module(includes = [DaggerModule.VmBinding::class])
+    class DaggerModule {
+        @Module
+        abstract class VmBinding {
+            @Binds
+            @IntoMap
+            @ViewModelKey(MainActivity.VM::class)
+            abstract fun bindMainActivityVM(vm: MainActivity.VM): ViewModel
+        }
+
+
+        @Provides
+        fun mainActivityData() = MainActivityData()
+    }
 
     @Subcomponent(modules = [DaggerModule::class])
     interface DaggerComponent {
@@ -35,18 +65,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun inject(mainActivity: MainActivity)
-    }
-
-    @Module
-    class DaggerModule(
-        val lifecycle: Lifecycle,
-        val mainView: MainView
-    ) {
-        @Provides
-        fun provideLifecycle() = lifecycle
-
-        @Provides
-        fun provideView() = mainView
     }
 
 
@@ -76,9 +94,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @Inject
-    lateinit var mainPresenter: MainPresenter
 
+
+
+    class VM @Inject constructor(
+        private val picsumApi: PicsumApi,
+        private val picsumRepository: PicsumRepository,
+        private val mainActivityData: MainActivityData
+    ): ViewModel() {
+        init {
+            Timber.d("Vm init")
+        }
+    }
+
+    @Inject
+    lateinit var vmFactory: ViewModelProvider.Factory
+
+    lateinit var vm: VM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,14 +119,15 @@ class MainActivity : AppCompatActivity() {
         App
             .dagger()
             .mainActivity()
-            .plus(DaggerModule(lifecycle, MainView(main_root)))
+            .plus(DaggerModule())
             .build()
             .inject(this)
 
-        val adapter = ImagesAdapter(this, mainPresenter)
+        vm = ViewModelProviders.of(this, vmFactory).get(VM::class.java)
 
-        main_recycler.adapter = adapter
-        main_recycler.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
+//        val adapter = ImagesAdapter(this, mainPresenter)
+//        main_recycler.adapter = adapter
+//        main_recycler.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
     }
 
 

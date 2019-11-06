@@ -1,4 +1,4 @@
-package com.braczkow.lorempicsum.lib.di
+package com.braczkow.lorempicsum.lib.picsum.di
 
 import com.braczkow.lorempicsum.BuildConfig
 import com.braczkow.lorempicsum.lib.picsum.PicsumApi
