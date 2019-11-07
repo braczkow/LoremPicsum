@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.braczkow.lorempicsum.R
@@ -17,16 +14,16 @@ import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.app.di.ViewModelKey
 import com.braczkow.lorempicsum.lib.picsum.PicsumApi
 import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
+import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.image_item.view.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -35,25 +32,15 @@ import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
-    class MainActivityData {
-        init {
-            Timber.d("MainActivityData ctor")
-        }
-    }
-
     @Module(includes = [DaggerModule.VmBinding::class])
     class DaggerModule {
         @Module
         abstract class VmBinding {
             @Binds
             @IntoMap
-            @ViewModelKey(MainActivity.VM::class)
-            abstract fun bindMainActivityVM(vm: MainActivity.VM): ViewModel
+            @ViewModelKey(AndroidViewModel::class)
+            abstract fun bind(vm: AndroidViewModel): ViewModel
         }
-
-
-        @Provides
-        fun mainActivityData() = MainActivityData()
     }
 
     @Subcomponent(modules = [DaggerModule::class])
@@ -67,50 +54,68 @@ class MainActivity : AppCompatActivity() {
         fun inject(mainActivity: MainActivity)
     }
 
-
-    class MainView(private val rootView: View) {
-        fun refreshItems() {
-            rootView.main_recycler.adapter?.notifyDataSetChanged()
-        }
-
-        fun onEndOfScroll(block: () -> Unit) {
-            rootView.main_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
-
-                    if (!recyclerView.canScrollVertically(1)) {
-                        block()
-                    }
-                }
-            })
-        }
-
-        fun showLoading() {
-            rootView.main_progress.visibility = View.VISIBLE
-        }
-
-        fun hideLoading() {
-            rootView.main_progress.visibility = View.GONE
-        }
-    }
-
-
-
-
-    class VM @Inject constructor(
+    class AndroidViewModel @Inject constructor(
         private val picsumApi: PicsumApi,
         private val picsumRepository: PicsumRepository,
-        private val mainActivityData: MainActivityData
+        private val sf: SchedulersFactory
     ): ViewModel() {
+
+        val disposables = CompositeDisposable()
+        val picsumList : LiveData<List<PicsumApi.ListEntry>> = MutableLiveData()
+        val isLoading: LiveData<Boolean> = MutableLiveData()
+
         init {
-            Timber.d("Vm init")
+            Timber.d("AndroidViewModel init")
+            picsumRepository
+                .getPiclist()
+                .subscribe {
+                    if (it.isEmpty()) {
+                        fetchNewImages()
+                    } else {
+                        (picsumList as MutableLiveData).postValue(it)
+                    }
+                }.apply { disposables.add(this) }
+
         }
+
+        fun fetchNewImages() {
+            if (isLoading.value == true) {
+                Timber.d("loading in progress, early return")
+                return
+            }
+
+            setLoading(true)
+
+            val requestPage = picsumRepository.getPagesFetched() + 1
+
+            picsumApi.getPicsList(requestPage)
+            .subscribeOn(sf.io())
+            .observeOn(sf.main())
+            .subscribe({
+                Timber.d("Success geting picslist! size: ${it.size}")
+                setLoading(false)
+                picsumRepository.addImages(it, requestPage)
+            }, {
+                Timber.e("Failed to getPiclist: $it")
+                setLoading(false)
+            }).apply { disposables.add(this) }
+        }
+
+        private fun setLoading(loading: Boolean) {
+            (isLoading as MutableLiveData).postValue(loading)
+        }
+
+        override fun onCleared() {
+            super.onCleared()
+            disposables.dispose()
+        }
+
     }
 
     @Inject
-    lateinit var vmFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    lateinit var vm: VM
+    lateinit var vm: AndroidViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,17 +128,36 @@ class MainActivity : AppCompatActivity() {
             .build()
             .inject(this)
 
-        vm = ViewModelProviders.of(this, vmFactory).get(VM::class.java)
+        vm = ViewModelProviders.of(this, viewModelFactory).get(AndroidViewModel::class.java)
 
-//        val adapter = ImagesAdapter(this, mainPresenter)
-//        main_recycler.adapter = adapter
-//        main_recycler.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
+        val adapter = ImagesAdapter(this)
+        main_recycler.adapter = adapter
+        main_recycler.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
+
+        main_recycler.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1)) {
+                    vm.fetchNewImages()
+                }
+            }
+        })
+
+        vm.picsumList.observe(this, Observer {
+            adapter.setItems(it)
+        })
+
+        vm.isLoading.observe(this, Observer {
+            main_progress.visibility = if (it) View.VISIBLE else View.GONE
+        })
     }
 
 
 
-    class ImagesAdapter(private val context: Context, private val presenter: MainPresenter) :
+    class ImagesAdapter(private val context: Context) :
         RecyclerView.Adapter<ImagesAdapter.ImageVH>() {
+
+        private var items = listOf<PicsumApi.ListEntry>()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageVH {
             val view =
@@ -141,10 +165,13 @@ class MainActivity : AppCompatActivity() {
             return ImageVH(view)
         }
 
-        override fun getItemCount() = presenter.items.size
+        override fun getItemCount(): Int {
+            Timber.d("getItemCount: ${items.size}")
+            return items.size
+        }
 
         override fun onBindViewHolder(holder: ImageVH, position: Int) {
-            val item = presenter.items[position]
+            val item = items[position]
 
             Glide.with(context)
                 .load(item.download_url)
@@ -160,6 +187,11 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
             }
+        }
+
+        fun setItems(it: List<PicsumApi.ListEntry>) {
+            items = it
+            notifyDataSetChanged()
         }
 
         class ImageVH(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -65,7 +65,7 @@ class MainPresenterTest {
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
 
         verify {
-            picsumRepository.savePiclist(list)
+            picsumRepository.addImages(list)
         }
     }
 

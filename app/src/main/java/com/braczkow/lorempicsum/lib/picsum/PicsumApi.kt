@@ -2,6 +2,7 @@ package com.braczkow.lorempicsum.lib.picsum
 
 import io.reactivex.Single
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface PicsumApi {
 
@@ -15,5 +16,7 @@ interface PicsumApi {
     )
 
     @GET("v2/list")
-    fun getPicsList(): Single<List<ListEntry>>
+    fun getPicsList(
+        @Query("page") page: Int? = null
+    ): Single<List<ListEntry>>
 }
