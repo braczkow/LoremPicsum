@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.app.di.ViewModelKey
@@ -112,9 +113,15 @@ class MainActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ImageVH, position: Int) {
             val item = items[position]
 
+            val progressDrawable = CircularProgressDrawable(context).apply {
+                centerRadius = 30f
+                start()
+            }
+
             Glide.with(context)
                 .load(item.download_url)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(progressDrawable)
                 .into(holder.itemView.image_image)
 
             holder.itemView.image_root.setOnClickListener {
