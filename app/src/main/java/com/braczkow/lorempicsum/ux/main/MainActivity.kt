@@ -13,8 +13,6 @@ import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.app.di.ViewModelKey
 import com.braczkow.lorempicsum.lib.picsum.PicsumApi
-import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
-import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -22,7 +20,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.image_item.view.*
 import timber.log.Timber
@@ -54,64 +51,6 @@ class MainActivity : AppCompatActivity() {
         fun inject(mainActivity: MainActivity)
     }
 
-    class AndroidViewModel @Inject constructor(
-        private val picsumApi: PicsumApi,
-        private val picsumRepository: PicsumRepository,
-        private val sf: SchedulersFactory
-    ): ViewModel() {
-
-        val disposables = CompositeDisposable()
-        val picsumList : LiveData<List<PicsumApi.ListEntry>> = MutableLiveData()
-        val isLoading: LiveData<Boolean> = MutableLiveData()
-
-        init {
-            Timber.d("AndroidViewModel init")
-            picsumRepository
-                .getPiclist()
-                .subscribe {
-                    if (it.isEmpty()) {
-                        fetchNewImages()
-                    } else {
-                        (picsumList as MutableLiveData).postValue(it)
-                    }
-                }.apply { disposables.add(this) }
-
-        }
-
-        fun fetchNewImages() {
-            if (isLoading.value == true) {
-                Timber.d("loading in progress, early return")
-                return
-            }
-
-            setLoading(true)
-
-            val requestPage = picsumRepository.getPagesFetched() + 1
-
-            picsumApi.getPicsList(requestPage)
-            .subscribeOn(sf.io())
-            .observeOn(sf.main())
-            .subscribe({
-                Timber.d("Success geting picslist! size: ${it.size}")
-                setLoading(false)
-                picsumRepository.addImages(it, requestPage)
-            }, {
-                Timber.e("Failed to getPiclist: $it")
-                setLoading(false)
-            }).apply { disposables.add(this) }
-        }
-
-        private fun setLoading(loading: Boolean) {
-            (isLoading as MutableLiveData).postValue(loading)
-        }
-
-        override fun onCleared() {
-            super.onCleared()
-            disposables.dispose()
-        }
-
-    }
-
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -138,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (!recyclerView.canScrollVertically(1)) {
-                    vm.fetchNewImages()
+                    vm.requestImages()
                 }
             }
         })
