@@ -30,7 +30,7 @@ class AndroidViewModel @Inject constructor(
         Timber.d("AndroidViewModel init")
 
         requests
-            .throttleFirst(5, TimeUnit.SECONDS)
+            .throttleFirst(5, TimeUnit.SECONDS, sf.io())
             .observeOn(sf.main())
             .subscribe {
                 fetchImages()
