@@ -72,7 +72,9 @@ class MainActivity : AppCompatActivity() {
 
         val adapter = ImagesAdapter(this)
         main_recycler.adapter = adapter
-        main_recycler.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
+
+        val columnsNo = applicationContext.resources.getInteger(R.integer.default_cols_no)
+        main_recycler.layoutManager = GridLayoutManager(this, columnsNo, GridLayoutManager.VERTICAL, false)
 
         main_recycler.addOnScrollListener(object: RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
