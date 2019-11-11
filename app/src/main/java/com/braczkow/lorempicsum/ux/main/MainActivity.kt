@@ -1,11 +1,14 @@
 package com.braczkow.lorempicsum.ux.main
 
+import android.app.Activity
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,7 +28,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.image_item.view.*
 import timber.log.Timber
 import javax.inject.Inject
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -74,9 +76,10 @@ class MainActivity : AppCompatActivity() {
         main_recycler.adapter = adapter
 
         val columnsNo = applicationContext.resources.getInteger(R.integer.default_cols_no)
-        main_recycler.layoutManager = GridLayoutManager(this, columnsNo, GridLayoutManager.VERTICAL, false)
+        main_recycler.layoutManager =
+            GridLayoutManager(this, columnsNo, GridLayoutManager.VERTICAL, false)
 
-        main_recycler.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+        main_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (!recyclerView.canScrollVertically(1)) {
@@ -95,9 +98,10 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     class ImagesAdapter(private val context: Context) :
         RecyclerView.Adapter<ImagesAdapter.ImageVH>() {
+
+        val animName = "AnimName"
 
         private var items = listOf<PicsumApi.ListEntry>()
 
@@ -126,13 +130,25 @@ class MainActivity : AppCompatActivity() {
                 .placeholder(progressDrawable)
                 .into(holder.itemView.image_image)
 
+            ViewCompat.setTransitionName(holder.itemView.image_image, item.id)
+
             holder.itemView.image_root.setOnClickListener {
+                val intent = DetailsActivity.makeIntent(
+                    context,
+                    item.id,
+                    item.download_url,
+                    item.author
+                )
+
+                val opts = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    context as Activity,
+                    holder.itemView.image_image,
+                    ViewCompat.getTransitionName(holder.itemView.image_image)!!
+                )
+
                 context.startActivity(
-                    DetailsActivity.makeIntent(
-                        context,
-                        item.download_url,
-                        item.author
-                    )
+                    intent,
+                    opts.toBundle()
                 )
             }
         }
