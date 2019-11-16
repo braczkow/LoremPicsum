@@ -1,4 +1,4 @@
-package com.braczkow.lorempicsum.lib.picsum
+package com.braczkow.lorempicsum.lib.picsum.internal
 
 import android.content.Context
 import com.google.gson.Gson
@@ -14,7 +14,8 @@ interface PicsumRepository {
 }
 
 @Singleton
-class PicsumRepositoryImpl @Inject constructor(private val context: Context) : PicsumRepository {
+class PicsumRepositoryImpl @Inject constructor(private val context: Context) :
+    PicsumRepository {
 
     data class PicsListStorage(val list: List<PicsumApi.ListEntry>)
     private val PAGES_FETCHED_KEY = "PAGES_FETCHED_KEY"
@@ -28,7 +29,10 @@ class PicsumRepositoryImpl @Inject constructor(private val context: Context) : P
     private val piclistPublisher = BehaviorSubject.createDefault(loadPicList())
 
     override fun addImages(list: List<PicsumApi.ListEntry>, pageNo: Int) {
-        val storage = PicsListStorage(loadPicList() + list)
+        val storage =
+            PicsListStorage(
+                loadPicList() + list
+            )
 
         prefs
             .edit()

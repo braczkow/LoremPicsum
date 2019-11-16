@@ -3,8 +3,9 @@ package com.braczkow.lorempicsum.ux.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.braczkow.lorempicsum.lib.picsum.PicsumApi
-import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
+import com.braczkow.lorempicsum.lib.picsum.internal.PicsumApi
+import com.braczkow.lorempicsum.lib.picsum.usecase.FetchImages
+import com.braczkow.lorempicsum.lib.picsum.usecase.GetPiclist
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -14,8 +15,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class AndroidViewModel @Inject constructor(
-    private val picsumApi: PicsumApi,
-    private val picsumRepository: PicsumRepository,
+    private val getPiclist: GetPiclist,
+    private val fetchImages: FetchImages,
     private val sf: SchedulersFactory
 ): ViewModel() {
 
@@ -37,8 +38,8 @@ class AndroidViewModel @Inject constructor(
             }
             .addTo(disposables)
 
-        picsumRepository
-            .getPiclist()
+        getPiclist
+            .execute()
             .subscribe {
                 if (it.isEmpty()) {
                     requestImages()
@@ -60,19 +61,15 @@ class AndroidViewModel @Inject constructor(
 
         setLoading(true)
 
-        val requestPage = picsumRepository.getPagesFetched() + 1
-
-        picsumApi.getPicsList(requestPage)
-        .subscribeOn(sf.io())
-        .observeOn(sf.main())
-        .subscribe({
-            Timber.d("Success geting picslist! size: ${it.size}")
-            setLoading(false)
-            picsumRepository.addImages(it, requestPage)
-        }, {
-            Timber.e("Failed to getPiclist: $it")
-            setLoading(false)
-        }).apply { disposables.add(this) }
+        fetchImages
+            .execute()
+            .subscribe({
+                Timber.d("Success fetchImage}")
+                setLoading(false)
+            }, {
+                Timber.e("Failed to fetchImage: $it")
+                setLoading(false)
+            }).addTo(disposables)
     }
 
     private fun setLoading(loading: Boolean) {

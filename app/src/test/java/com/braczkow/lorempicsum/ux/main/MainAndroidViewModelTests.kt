@@ -1,10 +1,9 @@
 package com.braczkow.lorempicsum.ux.main
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import com.braczkow.lorempicsum.TestSchedulerFactory
-import com.braczkow.lorempicsum.lib.picsum.PicsumApi
-import com.braczkow.lorempicsum.lib.picsum.PicsumRepository
+import com.braczkow.lorempicsum.lib.picsum.internal.PicsumApi
+import com.braczkow.lorempicsum.lib.picsum.internal.PicsumRepository
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -15,7 +14,8 @@ import io.reactivex.Single
 import org.junit.Before
 import org.junit.Test
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import io.reactivex.schedulers.TestScheduler
+import com.braczkow.lorempicsum.lib.picsum.usecase.FetchImagesImpl
+import com.braczkow.lorempicsum.lib.picsum.usecase.GetPiclistImpl
 import org.junit.rules.TestRule
 import org.junit.Rule
 import java.util.concurrent.TimeUnit
@@ -32,9 +32,6 @@ class MainAndroidViewModelTests {
     @MockK(relaxed = true)
     lateinit var picsumRepository: PicsumRepository
 
-
-    val lifecycle = LifecycleRegistry(mockk())
-
     val sf = TestSchedulerFactory()
 
     lateinit var vm: AndroidViewModel
@@ -47,7 +44,7 @@ class MainAndroidViewModelTests {
     }
 
     fun makeTestee() {
-        vm = AndroidViewModel(picsumApi, picsumRepository, sf)
+        vm = AndroidViewModel(GetPiclistImpl(picsumRepository), FetchImagesImpl(picsumApi, picsumRepository, sf), sf)
     }
 
     private fun makeEntry(id: String) = PicsumApi.ListEntry(id, "author", "200", "200", "url", "download_url")

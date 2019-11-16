@@ -1,4 +1,4 @@
-package com.braczkow.lorempicsum.lib.picsum
+package com.braczkow.lorempicsum.lib.picsum.internal
 
 import io.reactivex.Single
 import retrofit2.http.GET

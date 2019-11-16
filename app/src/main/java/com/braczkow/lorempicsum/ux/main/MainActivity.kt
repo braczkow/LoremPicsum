@@ -16,7 +16,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.app.di.ViewModelKey
-import com.braczkow.lorempicsum.lib.picsum.PicsumApi
+import com.braczkow.lorempicsum.lib.picsum.internal.PicsumApi
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
