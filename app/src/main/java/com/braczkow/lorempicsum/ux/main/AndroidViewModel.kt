@@ -3,7 +3,7 @@ package com.braczkow.lorempicsum.ux.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.braczkow.lorempicsum.lib.picsum.internal.PicsumApi
+import com.braczkow.lorempicsum.lib.picsum.PicsumEntry
 import com.braczkow.lorempicsum.lib.picsum.usecase.FetchImages
 import com.braczkow.lorempicsum.lib.picsum.usecase.GetPiclist
 import com.braczkow.lorempicsum.lib.util.SchedulersFactory
@@ -21,7 +21,7 @@ class AndroidViewModel @Inject constructor(
 ): ViewModel() {
 
     val disposables = CompositeDisposable()
-    val picsumList : LiveData<List<PicsumApi.ListEntry>> =
+    val picsumPicsum : LiveData<List<PicsumEntry>> =
         MutableLiveData()
     val isLoading: LiveData<Boolean> = MutableLiveData()
 
@@ -44,7 +44,7 @@ class AndroidViewModel @Inject constructor(
                 if (it.isEmpty()) {
                     requestImages()
                 } else {
-                    (picsumList as MutableLiveData).postValue(it)
+                    (picsumPicsum as MutableLiveData).postValue(it)
                 }
             }
             .addTo(disposables)

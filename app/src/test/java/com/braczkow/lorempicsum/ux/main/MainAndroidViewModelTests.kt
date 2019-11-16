@@ -1,19 +1,18 @@
 package com.braczkow.lorempicsum.ux.main
 
-import androidx.lifecycle.LifecycleRegistry
 import com.braczkow.lorempicsum.TestSchedulerFactory
 import com.braczkow.lorempicsum.lib.picsum.internal.PicsumApi
 import com.braczkow.lorempicsum.lib.picsum.internal.PicsumRepository
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import io.mockk.verify
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.junit.Before
 import org.junit.Test
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.braczkow.lorempicsum.lib.picsum.PicsumEntry
 import com.braczkow.lorempicsum.lib.picsum.usecase.FetchImagesImpl
 import com.braczkow.lorempicsum.lib.picsum.usecase.GetPiclistImpl
 import org.junit.rules.TestRule
@@ -47,7 +46,14 @@ class MainAndroidViewModelTests {
         vm = AndroidViewModel(GetPiclistImpl(picsumRepository), FetchImagesImpl(picsumApi, picsumRepository, sf), sf)
     }
 
-    private fun makeEntry(id: String) = PicsumApi.ListEntry(id, "author", "200", "200", "url", "download_url")
+    private fun makeEntry(id: String) = PicsumEntry(
+        id,
+        "author",
+        "200",
+        "200",
+        "url",
+        "download_url"
+    )
 
     @Test
     fun `when Repo has empty list, presenter fetches images`() {
@@ -100,7 +106,14 @@ class MainAndroidViewModelTests {
         every {
             picsumRepository.getPiclist()
         } returns Observable.just(listOf(
-            PicsumApi.ListEntry("1", "author", "200", "200", "url", "download_url")
+            PicsumEntry(
+                "1",
+                "author",
+                "200",
+                "200",
+                "url",
+                "download_url"
+            )
         ))
 
         every {
@@ -121,7 +134,14 @@ class MainAndroidViewModelTests {
         every {
             picsumRepository.getPiclist()
         } returns Observable.just(listOf(
-            PicsumApi.ListEntry("1", "author", "200", "200", "url", "download_url")
+            PicsumEntry(
+                "1",
+                "author",
+                "200",
+                "200",
+                "url",
+                "download_url"
+            )
         ))
 
         every {
@@ -145,7 +165,14 @@ class MainAndroidViewModelTests {
         every {
             picsumRepository.getPiclist()
         } returns Observable.just(listOf(
-            PicsumApi.ListEntry("1", "author", "200", "200", "url", "download_url")
+            PicsumEntry(
+                "1",
+                "author",
+                "200",
+                "200",
+                "url",
+                "download_url"
+            )
         ))
 
         every {
@@ -170,7 +197,14 @@ class MainAndroidViewModelTests {
         every {
             picsumRepository.getPiclist()
         } returns Observable.just(listOf(
-            PicsumApi.ListEntry("1", "author", "200", "200", "url", "download_url")
+            PicsumEntry(
+                "1",
+                "author",
+                "200",
+                "200",
+                "url",
+                "download_url"
+            )
         ))
 
         every {

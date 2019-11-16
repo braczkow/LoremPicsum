@@ -16,7 +16,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.braczkow.lorempicsum.R
 import com.braczkow.lorempicsum.app.App
 import com.braczkow.lorempicsum.app.di.ViewModelKey
-import com.braczkow.lorempicsum.lib.picsum.internal.PicsumApi
+import com.braczkow.lorempicsum.lib.picsum.PicsumEntry
 import com.braczkow.lorempicsum.ux.details.DetailsActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        vm.picsumList.observe(this, Observer {
+        vm.picsumPicsum.observe(this, Observer {
             adapter.setItems(it)
         })
 
@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
 
         val animName = "AnimName"
 
-        private var items = listOf<PicsumApi.ListEntry>()
+        private var items = listOf<PicsumEntry>()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageVH {
             val view =
@@ -153,7 +153,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        fun setItems(it: List<PicsumApi.ListEntry>) {
+        fun setItems(it: List<PicsumEntry>) {
             items = it
             notifyDataSetChanged()
         }
