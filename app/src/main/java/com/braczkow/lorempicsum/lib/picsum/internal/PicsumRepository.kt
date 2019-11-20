@@ -50,7 +50,7 @@ class PicsumRepositoryImpl @Inject constructor(private val context: Context) :
 
     private fun loadPicList(): List<PicsumEntry> {
         if (prefs.contains(PicsListStorage::class.java.simpleName)) {
-            return gson.fromJson(prefs.getString(PicsListStorage::class.java.simpleName, ""), PicsListStorage::class.java).picsum
+            return gson.fromJson(prefs.getString(PicsListStorage::class.java.simpleName, ""), PicsListStorage::class.java)?.picsum ?: emptyList()
         } else {
             return listOf()
         }
